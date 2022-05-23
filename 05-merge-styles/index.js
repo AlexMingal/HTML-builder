@@ -11,7 +11,7 @@ const cssStream = fs.createWriteStream(
 const inputDir = path.join(__dirname, "styles");
 
 
-async function collectCss(){
+async function mergeCss(){
     try {
     const files = await readdir(inputDir, {withFileTypes: true}); 
 
@@ -28,4 +28,4 @@ async function collectCss(){
 }
 
 
-collectCss();
+mergeCss();
