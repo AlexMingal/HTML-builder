@@ -13,7 +13,7 @@ async function makeFolder(folder) {
   } catch (error) {}
 }
 
-makeFolder(output);
+makeFolder(output); // Create directory 'project-dist' 
 
 
 // function merging CSS 
@@ -36,12 +36,13 @@ async function mergeCss() {
   } catch (error) {}
 }
 
-mergeCss();
+mergeCss(); // building one merged .css file in 'project-dist' folder
 
-// function for copy
+
+// function for copy assets
 
 const inputFolder = path.join(__dirname, 'assets');
-const outpuFolder = path.join(output, 'assets');
+const outputFolder = path.join(output, 'assets');
 
 async function copyFolder(src, dest) {
   try {
@@ -57,12 +58,12 @@ async function copyFolder(src, dest) {
   try {
     const elements = await readdir(src, { withFileTypes: true });
     elements.forEach((elem) => {
-      if (element.isFile()) {
+      if (elem.isFile()) {
         copyFile(path.join(src, elem.name), path.join(dest, elem.name));
       } else {
-        const newInput = path.join(inputDir, elem.name);
-        const newOutput = path.join(outputDir, elem.name);
-        copyDir(newInput, newOutput);
+        const newInput = path.join(inputFolder, elem.name);
+        const newOutput = path.join(outputFolder, elem.name);
+        copyFolder(newInput, newOutput);
       }
     });
   } catch (error) {
@@ -70,41 +71,43 @@ async function copyFolder(src, dest) {
   }
 }
 
-copyFolder(inputDir, outputDir);
+copyFolder(inputFolder, outputFolder);
 
-//working with template
 
-const writeableStreamHTML = fs.createWriteStream(
-  path.join(__dirname, "project-dist", "index.html")
+// Работа с шаблоном
+
+const htmlStream = fs.createWriteStream(
+  path.join(__dirname, 'project-dist', 'index.html')
 );
 
-let html = "";
+let html = '';
 
 
 async function readTemplate() {
   try {
-    html = await readFile(path.join(__dirname, "template.html"), {
-      encoding: "utf-8",
+    html = await readFile(path.join(__dirname, 'template.html'), {
+      encoding: 'utf-8',
     });
     try {
-      const files = await readdir(path.join(__dirname, "components"), {withFileTypes: true});
-      let i = 0;      
+      const files = await readdir(path.join(__dirname, 'components'), {withFileTypes: true});
+      let counter = 0;      
       for (const file of files) {
         const fileName = file.name.split('.html').join('');
         html = html.split(`{{${fileName}}}`);        
         try {
-          const htmlFromFile = await readFile(path.join(__dirname, 'components', file.name), {encoding: "utf-8"});  
+          const htmlFromFile = await readFile(path.join(__dirname, 'components', file.name), {encoding: 'utf-8'});  
           
           html.splice(1, 0, htmlFromFile);
           html = html.join('');
-          i++;
-          if(i === files.length){
-            writeableStreamHTML.write(html);
+          counter++;
+          if(counter === files.length){
+            htmlStream.write(html);
           }         
-        } catch (err) {}        
+        } catch (error) {}        
       }      
-    } catch (err) {}
-  } catch (err) {}
+    } catch (error) {}
+  } catch (error) {}
 }
+
 
 readTemplate();
